@@ -22,6 +22,13 @@ public class GroceryAdapter extends BaseAdapter {
 
         context = ctx;
     }
+
+    public void clearItemList() {
+        groceryItemList.clear();
+
+        notifyDataSetChanged();
+    }
+
     public void addItem (String name) {
         GroceryItem item = new GroceryItem();
         item.setName(name);

@@ -14,6 +14,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 
+import com.firebase.client.ChildEventListener;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
@@ -35,7 +36,7 @@ public class MainActivity extends ActionBarActivity {
         setContentView(R.layout.activity_main);
 
         Firebase.setAndroidContext(this);
-        final Firebase firebaseRef = new Firebase("https://burning-torch-3933.firebaseio.com/");
+        final Firebase firebaseRef = new Firebase("https://burning-torch-3933.firebaseio.com/items");
 
         groceryAdapter = new GroceryAdapter(this);
 
@@ -48,9 +49,10 @@ public class MainActivity extends ActionBarActivity {
             }
         });
 
-        firebaseRef.addListenerForSingleValueEvent(new ValueEventListener() {
+        firebaseRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
+                groceryAdapter.clearItemList();
                 refreshData(snapshot);
             }
             @Override
@@ -59,10 +61,26 @@ public class MainActivity extends ActionBarActivity {
             }
         });
 
-        firebaseRef.addValueEventListener(new ValueEventListener() {
+        firebaseRef.addChildEventListener(new ChildEventListener() {
             @Override
-            public void onDataChange(DataSnapshot snapshot) {
-                System.out.println(snapshot.getValue());
+            public void onChildAdded (DataSnapshot snapshot, String previousChildKey) {
+                groceryAdapter.clearItemList();
+                refreshData(snapshot);
+            }
+            @Override
+            public void onChildChanged (DataSnapshot snapshot, String previousChildKey) {
+                groceryAdapter.clearItemList();
+                refreshData(snapshot);
+            }
+            @Override
+            public void onChildRemoved(DataSnapshot snapshot) {
+                groceryAdapter.clearItemList();
+                refreshData(snapshot);
+            }
+            @Override
+            public void onChildMoved (DataSnapshot snapshot, String previousChildKey) {
+                groceryAdapter.clearItemList();
+                refreshData(snapshot);
             }
             @Override
             public void onCancelled(FirebaseError firebaseError) {
@@ -74,14 +92,12 @@ public class MainActivity extends ActionBarActivity {
     }
 
     public void refreshData(DataSnapshot snapshot) {
-        DataSnapshot currentLevel = snapshot;
-        if (currentLevel.hasChild("items")) {
-            currentLevel = currentLevel.child("items");
-        }
-
-        for (DataSnapshot currentItem: currentLevel.getChildren()) {
-            if (currentItem.hasChild("name")) {
-                groceryAdapter.addItem(currentItem.child("name").getValue().toString());
+        if (snapshot.hasChildren()) {
+            for (DataSnapshot currentItem: snapshot.getChildren()) {
+                if (currentItem.hasChild("name")) {
+                    groceryAdapter.addItem(currentItem.child("name").getValue().toString());
+                    System.out.println(currentItem.child("name").getValue().toString());
+                }
             }
         }
     }
