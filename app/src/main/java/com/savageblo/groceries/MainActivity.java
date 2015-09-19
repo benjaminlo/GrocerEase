@@ -1,7 +1,6 @@
 package com.savageblo.groceries;
 
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.support.v7.app.ActionBarActivity;
@@ -14,7 +13,6 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
@@ -53,16 +51,18 @@ public class MainActivity extends ActionBarActivity {
         firebaseRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
-                DataSnapshot currentLevel = snapshot;
-                if (currentLevel.hasChild("items")) {
-                    currentLevel = currentLevel.child("items");
-                }
+                refreshData(snapshot);
+            }
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+                System.out.println("The read failed: " + firebaseError.getMessage());
+            }
+        });
 
-                for (DataSnapshot currentItem: currentLevel.getChildren()) {
-                    if (currentItem.hasChild("name")) {
-                        groceryAdapter.addItem(currentItem.child("name").getValue().toString());
-                    }
-                }
+        firebaseRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot snapshot) {
+                System.out.println(snapshot.getValue());
             }
             @Override
             public void onCancelled(FirebaseError firebaseError) {
@@ -71,18 +71,19 @@ public class MainActivity extends ActionBarActivity {
         });
 
         addListenerOnButton();
+    }
 
-        firebaseRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot snapshot) {
-                System.out.println(snapshot.getValue());
-            }
+    public void refreshData(DataSnapshot snapshot) {
+        DataSnapshot currentLevel = snapshot;
+        if (currentLevel.hasChild("items")) {
+            currentLevel = currentLevel.child("items");
+        }
 
-            @Override
-            public void onCancelled(FirebaseError firebaseError) {
-                System.out.println("The read failed: " + firebaseError.getMessage());
+        for (DataSnapshot currentItem: currentLevel.getChildren()) {
+            if (currentItem.hasChild("name")) {
+                groceryAdapter.addItem(currentItem.child("name").getValue().toString());
             }
-        });
+        }
     }
 
     public void addListenerOnButton() {
