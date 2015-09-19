@@ -44,8 +44,17 @@ public class MainActivity extends ActionBarActivity {
         groceryListView.setAdapter(groceryAdapter);
         groceryListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
+            public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
+                AlertDialog.Builder adb=new AlertDialog.Builder(MainActivity.this);
+                adb.setTitle("Delete?");
+                adb.setMessage("Are you sure you want to delete " + position);
+                final int positionToRemove = position;
+                adb.setNegativeButton("Cancel", null);
+                adb.setPositiveButton("Ok", new AlertDialog.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        groceryAdapter.removeItem(position);
+                    }});
+                adb.show();
             }
         });
 

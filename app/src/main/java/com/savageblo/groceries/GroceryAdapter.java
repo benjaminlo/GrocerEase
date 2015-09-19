@@ -38,6 +38,11 @@ public class GroceryAdapter extends BaseAdapter {
         notifyDataSetChanged();
     }
 
+    public void removeItem (int position) {
+        groceryItemList.remove(position);
+        notifyDataSetChanged();
+    }
+
     @Override
     public int getCount() {
         return groceryItemList.size();
