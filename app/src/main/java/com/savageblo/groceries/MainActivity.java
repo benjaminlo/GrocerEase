@@ -16,6 +16,11 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.firebase.client.Firebase;
+
+import java.util.HashMap;
+import java.util.Map;
+
 public class MainActivity extends ActionBarActivity {
 
     private GroceryAdapter groceryAdapter;
@@ -27,6 +32,8 @@ public class MainActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        Firebase.setAndroidContext(this);
 
         groceryAdapter = new GroceryAdapter(this);
 
@@ -58,6 +65,14 @@ public class MainActivity extends ActionBarActivity {
                                 EditText savedText = ((EditText) v.findViewById(R.id.itemName));
                                 String itemText = savedText.getText().toString();
                                 groceryAdapter.addItem(itemText);
+
+                                Map<String, String> post1 = new HashMap<String, String>();
+                                post1.put("name", itemText);
+                                post1.put("date", "DATE");
+
+                                Firebase firebaseRef = new Firebase("https://burning-torch-3933.firebaseio.com/");
+                                Firebase postRef = firebaseRef.child("items");
+                                postRef.push().setValue(post1);
                             }
                         })
                         .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
