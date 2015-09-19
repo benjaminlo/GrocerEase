@@ -13,6 +13,7 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.firebase.client.ChildEventListener;
 import com.firebase.client.DataSnapshot;
@@ -42,19 +43,56 @@ public class MainActivity extends ActionBarActivity {
 
         groceryListView = (ListView)findViewById(R.id.groceryListView);
         groceryListView.setAdapter(groceryAdapter);
-        groceryListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        groceryListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
-                AlertDialog.Builder adb=new AlertDialog.Builder(MainActivity.this);
-                adb.setTitle("Delete?");
-                adb.setMessage("Are you sure you want to delete " + position);
-                adb.setNegativeButton("Cancel", null);
-                adb.setPositiveButton("Ok", new AlertDialog.OnClickListener() {
+            public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                builder.setTitle("Delete this item?");
+                builder.setMessage("Are you sure you want to delete " + groceryAdapter.getItem(position).getName() + "?");
+                builder.setNegativeButton("Cancel", null);
+                builder.setPositiveButton("OK", new AlertDialog.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         Firebase newRef = firebaseRef.child(groceryAdapter.removeItem(position));
                         newRef.removeValue();
-                    }});
-                adb.show();
+                    }
+                });
+                builder.show();
+                return true;
+            }
+        });
+
+        groceryListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
+                alertDialogBuilder.setTitle("Edit the name!");
+
+                LayoutInflater inflater = (LayoutInflater) context.getSystemService (Context.LAYOUT_INFLATER_SERVICE);
+                final View v = inflater.inflate(R.layout.edit_grocery_dialog, null);
+
+                alertDialogBuilder.setView(v);
+
+                alertDialogBuilder
+                        .setCancelable(false)
+                        .setPositiveButton("Save",new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                EditText savedText = ((EditText) v.findViewById(R.id.itemName));
+                                String itemText = savedText.getText().toString();
+
+                                String newID = groceryAdapter.getKey(position);
+                                Firebase newRef = firebaseRef.child(newID);
+                                newRef.child("name").setValue(itemText);
+
+                                groceryAdapter.setItemName(position, itemText);
+                            }
+                        })
+                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                dialog.cancel();
+                            }
+                        });
+                AlertDialog alertDialog = alertDialogBuilder.create();
+                alertDialog.show();
             }
         });
 
@@ -64,6 +102,7 @@ public class MainActivity extends ActionBarActivity {
                 groceryAdapter.clearItemList();
                 refreshData(snapshot);
             }
+
             @Override
             public void onCancelled(FirebaseError firebaseError) {
                 System.out.println("The read failed: " + firebaseError.getMessage());

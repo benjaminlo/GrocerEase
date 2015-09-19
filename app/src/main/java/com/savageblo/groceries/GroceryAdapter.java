@@ -39,6 +39,12 @@ public class GroceryAdapter extends BaseAdapter {
         notifyDataSetChanged();
     }
 
+    public void setItemName (int position, String newName) {
+        groceryItemList.get(position).setName(newName);
+
+        notifyDataSetChanged();
+    }
+
     public String removeItem (int position) {
         String key = groceryItemList.get(position).getKey();
         groceryItemList.remove(position);
@@ -48,13 +54,17 @@ public class GroceryAdapter extends BaseAdapter {
         return key;
     }
 
+    public String getKey (int position) {
+        return groceryItemList.get(position).getKey();
+    }
+
     @Override
     public int getCount() {
         return groceryItemList.size();
     }
 
     @Override
-    public Object getItem(int position) {
+    public GroceryItem getItem(int position) {
         return groceryItemList.get(position);
     }
 
