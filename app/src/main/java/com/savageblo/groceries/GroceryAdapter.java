@@ -29,18 +29,23 @@ public class GroceryAdapter extends BaseAdapter {
         notifyDataSetChanged();
     }
 
-    public void addItem (String name) {
+    public void addItem (String name, String key) {
         GroceryItem item = new GroceryItem();
         item.setName(name);
         item.setExpired(new Date());
+        item.setKey(key);
         groceryItemList.add(item);
 
         notifyDataSetChanged();
     }
 
-    public void removeItem (int position) {
+    public String removeItem (int position) {
+        String key = groceryItemList.get(position).getKey();
         groceryItemList.remove(position);
+
         notifyDataSetChanged();
+
+        return key;
     }
 
     @Override

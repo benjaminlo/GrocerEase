@@ -48,11 +48,11 @@ public class MainActivity extends ActionBarActivity {
                 AlertDialog.Builder adb=new AlertDialog.Builder(MainActivity.this);
                 adb.setTitle("Delete?");
                 adb.setMessage("Are you sure you want to delete " + position);
-                final int positionToRemove = position;
                 adb.setNegativeButton("Cancel", null);
                 adb.setPositiveButton("Ok", new AlertDialog.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
-                        groceryAdapter.removeItem(position);
+                        Firebase newRef = firebaseRef.child(groceryAdapter.removeItem(position));
+                        newRef.removeValue();
                     }});
                 adb.show();
             }
@@ -104,7 +104,8 @@ public class MainActivity extends ActionBarActivity {
         if (snapshot.hasChildren()) {
             for (DataSnapshot currentItem: snapshot.getChildren()) {
                 if (currentItem.hasChild("name")) {
-                    groceryAdapter.addItem(currentItem.child("name").getValue().toString());
+                    groceryAdapter.addItem(currentItem.child("name").getValue().toString(), currentItem.getKey());
+                    System.out.println(currentItem.getKey());
                     System.out.println(currentItem.child("name").getValue().toString());
                 }
             }
@@ -127,7 +128,6 @@ public class MainActivity extends ActionBarActivity {
                             public void onClick(DialogInterface dialog, int id) {
                                 EditText savedText = ((EditText) v.findViewById(R.id.itemName));
                                 String itemText = savedText.getText().toString();
-                                groceryAdapter.addItem(itemText);
 
                                 Map<String, String> post1 = new HashMap<String, String>();
                                 post1.put("name", itemText);
@@ -135,7 +135,10 @@ public class MainActivity extends ActionBarActivity {
 
                                 Firebase firebaseRef = new Firebase("https://burning-torch-3933.firebaseio.com/");
                                 Firebase postRef = firebaseRef.child("items");
-                                postRef.push().setValue(post1);
+                                Firebase newRef = postRef.push();
+                                newRef.setValue(post1);
+
+                                groceryAdapter.addItem(itemText, newRef.getKey());
                             }
                         })
                         .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
