@@ -20,12 +20,13 @@ public class GroceryAdapter extends BaseAdapter {
     public GroceryAdapter(Context ctx) {
         groceryItemList = new ArrayList<>();
 
+        context = ctx;
+    }
+    public void addItem (String name) {
         GroceryItem item = new GroceryItem();
-        item.setName("Milk");
+        item.setName(name);
         item.setExpired(new Date());
         groceryItemList.add(item);
-
-        context = ctx;
     }
 
     @Override

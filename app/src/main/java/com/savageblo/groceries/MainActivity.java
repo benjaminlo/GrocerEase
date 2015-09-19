@@ -6,11 +6,13 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -44,10 +46,27 @@ public class MainActivity extends ActionBarActivity {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                final Dialog dialog = new Dialog(context);
-                dialog.setContentView(R.layout.add_grocery_dialog);
-                dialog.setTitle("Add a new item!");
-                dialog.show();
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
+                alertDialogBuilder.setTitle("Add a new item!");
+                LayoutInflater inflater = (LayoutInflater) context.getSystemService (Context.LAYOUT_INFLATER_SERVICE);
+                final View v = inflater.inflate(R.layout.add_grocery_dialog, null);
+                alertDialogBuilder.setView(v);
+                alertDialogBuilder
+                        .setCancelable(false)
+                        .setPositiveButton("Save",new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                EditText savedText = ((EditText) v.findViewById(R.id.itemName));
+                                String itemText = savedText.getText().toString();
+                                groceryAdapter.addItem(itemText);
+                            }
+                        })
+                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                dialog.cancel();
+                            }
+                        });
+                AlertDialog alertDialog = alertDialogBuilder.create();
+                alertDialog.show();
             }
         });
     }
