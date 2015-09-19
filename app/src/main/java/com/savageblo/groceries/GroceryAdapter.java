@@ -27,6 +27,8 @@ public class GroceryAdapter extends BaseAdapter {
         item.setName(name);
         item.setExpired(new Date());
         groceryItemList.add(item);
+
+        notifyDataSetChanged();
     }
 
     @Override

@@ -16,7 +16,10 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
+import com.firebase.client.FirebaseError;
+import com.firebase.client.ValueEventListener;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -34,6 +37,7 @@ public class MainActivity extends ActionBarActivity {
         setContentView(R.layout.activity_main);
 
         Firebase.setAndroidContext(this);
+        final Firebase firebaseRef = new Firebase("https://burning-torch-3933.firebaseio.com/");
 
         groceryAdapter = new GroceryAdapter(this);
 
@@ -45,7 +49,40 @@ public class MainActivity extends ActionBarActivity {
 
             }
         });
+
+        firebaseRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot snapshot) {
+                DataSnapshot currentLevel = snapshot;
+                if (currentLevel.hasChild("items")) {
+                    currentLevel = currentLevel.child("items");
+                }
+
+                for (DataSnapshot currentItem: currentLevel.getChildren()) {
+                    if (currentItem.hasChild("name")) {
+                        groceryAdapter.addItem(currentItem.child("name").getValue().toString());
+                    }
+                }
+            }
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+                System.out.println("The read failed: " + firebaseError.getMessage());
+            }
+        });
+
         addListenerOnButton();
+
+        firebaseRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot snapshot) {
+                System.out.println(snapshot.getValue());
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+                System.out.println("The read failed: " + firebaseError.getMessage());
+            }
+        });
     }
 
     public void addListenerOnButton() {
