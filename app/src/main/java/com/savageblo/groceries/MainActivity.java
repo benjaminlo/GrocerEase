@@ -15,8 +15,6 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.ProgressBar;
-import android.widget.TextView;
 
 import com.firebase.client.ChildEventListener;
 import com.firebase.client.DataSnapshot;
@@ -182,15 +180,17 @@ public class MainActivity extends ActionBarActivity {
         if (snapshot.hasChildren()) {
             for (DataSnapshot currentItem: snapshot.getChildren()) {
                 if (currentItem.hasChild("name")) {
-                    groceryAdapter.addItem(currentItem.child("name").getValue().toString(), currentItem.getKey(), stringToDate(currentItem.child("dateBought").getValue().toString()));
+                    groceryAdapter.addItem(currentItem.child("name").getValue().toString(),
+                            currentItem.getKey(),
+                            stringToDate(currentItem.child("dateBought").getValue().toString()),
+                            stringToDate(currentItem.child("dateExpiry").getValue().toString()),
+                            Boolean.valueOf(currentItem.child("isExpired").getValue().toString()),
+                            Boolean.valueOf(currentItem.child("wasNotified").getValue().toString()));
                     System.out.println(currentItem.getKey());
                     System.out.println(currentItem.child("name").getValue().toString());
                 }
             }
         }
-
-        // Sets an ID for the notification
-
     }
 
     public void addListenerOnButton() {
@@ -215,13 +215,18 @@ public class MainActivity extends ActionBarActivity {
                                 Map<String, String> post1 = new HashMap<String, String>();
                                 post1.put("name",itemText);
                                 post1.put("dateBought", dateToString(boughtDate));
+                                post1.put("dateExpiry", dateToString(getExpiryDate()));
+                                post1.put("isExpired", "false");
+                                post1.put("wasNotified", "false");
+
 
                                 Firebase firebaseRef = new Firebase("https://burning-torch-3933.firebaseio.com/");
                                 Firebase postRef = firebaseRef.child("items");
                                 Firebase newRef = postRef.push();
                                 newRef.setValue(post1);
 
-                                groceryAdapter.addItem(itemText,newRef.getKey(),boughtDate);
+                                groceryAdapter.addItem(itemText,newRef.getKey(),boughtDate,
+                                        getExpiryDate(), false, false);
                             }
                 })
                         .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -271,5 +276,14 @@ public class MainActivity extends ActionBarActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public Date getExpiryDate () {
+        Date dateExpiry = new Date();
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(dateExpiry);
+        cal.add(Calendar.DAY_OF_YEAR, 7);
+        dateExpiry = cal.getTime();
+        return dateExpiry;
     }
 }

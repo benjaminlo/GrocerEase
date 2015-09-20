@@ -8,19 +8,11 @@ public class GroceryItem {
     private String name;
     private Date bought;
     private Date expiry;
-    private boolean notified;
-    private boolean expired=false;
+    private boolean wasNotified;
+    private boolean isExpired;
 
     public GroceryItem() {
 
-    }
-
-    public String getKey() {
-        return key;
-    }
-
-    public void setKey(String key) {
-        this.key = key;
     }
 
     public String getName() {
@@ -31,6 +23,14 @@ public class GroceryItem {
         this.name = name;
     }
 
+    public String getKey() {
+        return key;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
+    }
+
     public Date getBought() {
         return bought;
     }
@@ -39,12 +39,28 @@ public class GroceryItem {
         this.bought = bought;
     }
 
-    public Date getExpiryDate (Date dateBought) {
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(dateBought);
-        cal.add(Calendar.DAY_OF_YEAR, 7);
-        expiry = cal.getTime();
+    public void setExpiryDate (Date exp) {
+        this.expiry = exp;
+    }
+
+    public Date getExpiryDate () {
         return expiry;
+    }
+
+    public boolean getIsExpired () {
+        return isExpired;
+    }
+
+    public void setIsExpired (boolean x) {
+        this.isExpired = x;
+    }
+
+    public boolean getWasNotified () {
+        return wasNotified;
+    }
+
+    public void setWasNotified (boolean x) {
+        this.wasNotified = x;
     }
 
     public long timeBeforeExpiry (Date expiry) {
@@ -66,10 +82,10 @@ public class GroceryItem {
         return true;
     }
     public void setNotified () {
-        notified = true;
+        wasNotified = true;
     }
 
     public boolean wasNotified () {
-        return notified;
+        return wasNotified;
     }
 }

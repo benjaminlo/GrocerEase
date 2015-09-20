@@ -29,11 +29,15 @@ public class GroceryAdapter extends BaseAdapter {
         notifyDataSetChanged();
     }
 
-    public void addItem (String name, String key, Date boughtDate) {
+    public void addItem (String name, String key, Date boughtDate, Date expiryDate, boolean expired,
+                         boolean notified) {
         GroceryItem item = new GroceryItem();
         item.setName(name);
-        item.setBought(boughtDate);
         item.setKey(key);
+        item.setBought(boughtDate);
+        item.setExpiryDate(expiryDate);
+        item.setIsExpired(expired);
+        item.setWasNotified(notified);
         groceryItemList.add(item);
 
         notifyDataSetChanged();
@@ -57,28 +61,28 @@ public class GroceryAdapter extends BaseAdapter {
     public String getKey (int position) {
         return groceryItemList.get(position).getKey();
     }
-
-    public boolean checkExpired () {
-        boolean expired = false;
-        for(int i=0; i<groceryItemList.size(); i++){
-            if (groceryItemList.get(i).isExpired(groceryItemList.get(i).timeBeforeExpiry(groceryItemList.get(i).getExpiryDate(groceryItemList.get(i).getBought())))== true && groceryItemList.get(i).wasNotified()== false) {
-                groceryItemList.get(i).setNotified();
-                expired = true;
-                System.out.println(i);
-            }
-        }
-        return expired;
-    }
-
-    public boolean almostExpired () {
-        boolean expired = false;
-        for(int i=0; i<groceryItemList.size(); i++){
-            if (groceryItemList.get(i).timeBeforeExpiry(groceryItemList.get(i).getExpiryDate(groceryItemList.get(i).getBought()))< 100000000) {
-                expired = true;
-            }
-        }
-        return expired;
-    }
+//
+//    public boolean checkExpired () {
+//        boolean expired = false;
+//        for(int i=0; i<groceryItemList.size(); i++){
+//            if (groceryItemList.get(i).isExpired(groceryItemList.get(i).timeBeforeExpiry(groceryItemList.get(i).getExpiryDate(groceryItemList.get(i).getBought())))== true && groceryItemList.get(i).wasNotified()== false) {
+//                groceryItemList.get(i).setNotified();
+//                expired = true;
+//                System.out.println(i);
+//            }
+//        }
+//        return expired;
+//    }
+//
+//    public boolean almostExpired () {
+//        boolean expired = false;
+//        for(int i=0; i<groceryItemList.size(); i++){
+//            if (groceryItemList.get(i).timeBeforeExpiry(groceryItemList.get(i).getExpiryDate(groceryItemList.get(i).getBought()))< 100000000) {
+//                expired = true;
+//            }
+//        }
+//        return expired;
+//    }
 
 
     @Override
@@ -113,8 +117,8 @@ public class GroceryAdapter extends BaseAdapter {
         }
 
         GroceryItem current = groceryItemList.get(position);
-        Date dateBought = current.getBought();
-        Date expiry = current.getExpiryDate(dateBought);
+        //Date dateBought = current.getBought();
+        Date expiry = current.getExpiryDate();
 
         ViewHolder viewHolder = (ViewHolder)currentRow.getTag();
         viewHolder.groceryItemNameTextView.setText(current.getName());
