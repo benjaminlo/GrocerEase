@@ -7,6 +7,8 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
+import com.firebase.client.Firebase;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -21,6 +23,8 @@ public class GroceryAdapter extends BaseAdapter {
         groceryItemList = new ArrayList<>();
 
         context = ctx;
+
+        Firebase.setAndroidContext(ctx);
     }
 
     public void clearItemList() {
@@ -61,28 +65,28 @@ public class GroceryAdapter extends BaseAdapter {
     public String getKey (int position) {
         return groceryItemList.get(position).getKey();
     }
-//
-//    public boolean checkExpired () {
-//        boolean expired = false;
-//        for(int i=0; i<groceryItemList.size(); i++){
-//            if (groceryItemList.get(i).isExpired(groceryItemList.get(i).timeBeforeExpiry(groceryItemList.get(i).getExpiryDate(groceryItemList.get(i).getBought())))== true && groceryItemList.get(i).wasNotified()== false) {
-//                groceryItemList.get(i).setNotified();
-//                expired = true;
-//                System.out.println(i);
-//            }
-//        }
-//        return expired;
-//    }
-//
-//    public boolean almostExpired () {
-//        boolean expired = false;
-//        for(int i=0; i<groceryItemList.size(); i++){
-//            if (groceryItemList.get(i).timeBeforeExpiry(groceryItemList.get(i).getExpiryDate(groceryItemList.get(i).getBought()))< 100000000) {
-//                expired = true;
-//            }
-//        }
-//        return expired;
-//    }
+
+    public boolean checkExpired () {
+        boolean expired = false;
+        for(int i=0; i<groceryItemList.size(); i++){
+            if (groceryItemList.get(i).getIsExpired()== true && groceryItemList.get(i).getWasNotified()== false) {
+                groceryItemList.get(i).setWasNotified(true);
+                expired = true;
+                System.out.println(i);
+            }
+        }
+        return expired;
+    }
+
+    public boolean almostExpired () {
+        boolean expired = false;
+        for(int i=0; i<groceryItemList.size(); i++){
+            if (groceryItemList.get(i).remainingTime()< 86400000) {
+                expired = true;
+            }
+        }
+        return expired;
+    }
 
 
     @Override
@@ -120,10 +124,24 @@ public class GroceryAdapter extends BaseAdapter {
         //Date dateBought = current.getBought();
         Date expiry = current.getExpiryDate();
 
+        String newText = "";
+        boolean isExpired = current.validateExpired();
+
+        if (isExpired==true) {
+            newText = "YUCKY";
+            final Firebase firebaseRef = new Firebase("https://burning-torch-3933.firebaseio.com/items");
+            String newID = getKey(position);
+            Firebase newRef = firebaseRef.child(newID);
+            newRef.child("isExpired").setValue("true");
+            newRef.child("wasNotified").setValue("true");
+        }
+        else
+            newText = "YUMMY";
+
         ViewHolder viewHolder = (ViewHolder)currentRow.getTag();
         viewHolder.groceryItemNameTextView.setText(current.getName());
         viewHolder.groceryItemExpireTextView.setText(new SimpleDateFormat().format(expiry));
-        viewHolder.groceryItemStatusTextView.setText(current.expired(current.timeBeforeExpiry(expiry)));
+        viewHolder.groceryItemStatusTextView.setText(newText);
 
         return currentRow;
     }

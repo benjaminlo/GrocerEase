@@ -63,29 +63,18 @@ public class GroceryItem {
         this.wasNotified = x;
     }
 
-    public long timeBeforeExpiry (Date expiry) {
+    public boolean validateExpired () {
         long timeleft = (expiry.getTime() - new Date().getTime());
-        System.out.println ("Time Left til Expiry:");
-        System.out.println (timeleft);
+        if (timeleft < 0)
+            isExpired = true;
+        return isExpired;
+    }
+
+    public long remainingTime () {
+        long timeleft = (expiry.getTime() - new Date().getTime());
         return timeleft;
     }
 
-    public String expired (long timeleft) {
-        if (timeleft > 0)
-            return "YUMMY!";
-        return "EXPIRED!";
-    }
 
-    public boolean isExpired (long timeleft) {
-        if (timeleft > 0)
-            return false;
-        return true;
-    }
-    public void setNotified () {
-        wasNotified = true;
-    }
 
-    public boolean wasNotified () {
-        return wasNotified;
-    }
 }

@@ -120,8 +120,7 @@ public class MainActivity extends ActionBarActivity {
             public void onDataChange(DataSnapshot snapshot) {
                 groceryAdapter.clearItemList();
                 refreshData(snapshot);
-                if (false) {
-                //if (groceryAdapter.checkExpired()) {
+                if (groceryAdapter.checkExpired()) {
                     int mNotificationId = 001;
                     // Gets an instance of the NotificationManager service
                     NotificationManager mNotifyMgr =
@@ -129,9 +128,8 @@ public class MainActivity extends ActionBarActivity {
                     // Builds the notification and issues it.
                     mNotifyMgr.notify(mNotificationId, urgentNotifBuilder.build());
                 }
-                if (false) {
-                //if (groceryAdapter.almostExpired()) {
-                    int mNotificationId = 001;
+                else if (groceryAdapter.almostExpired()) {
+                    int mNotificationId = 002;
                     // Gets an instance of the NotificationManager service
                     NotificationManager mNotifyMgr =
                             (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
