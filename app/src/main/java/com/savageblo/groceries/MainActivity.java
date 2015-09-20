@@ -21,6 +21,11 @@ import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -143,7 +148,7 @@ public class MainActivity extends ActionBarActivity {
         if (snapshot.hasChildren()) {
             for (DataSnapshot currentItem: snapshot.getChildren()) {
                 if (currentItem.hasChild("name")) {
-                    groceryAdapter.addItem(currentItem.child("name").getValue().toString(), currentItem.getKey());
+                    groceryAdapter.addItem(currentItem.child("name").getValue().toString(), currentItem.getKey(), stringToDate(currentItem.child("dateBought").getValue().toString()));
                     System.out.println(currentItem.getKey());
                     System.out.println(currentItem.child("name").getValue().toString());
                 }
@@ -163,32 +168,50 @@ public class MainActivity extends ActionBarActivity {
                 alertDialogBuilder.setView(v);
                 alertDialogBuilder
                         .setCancelable(false)
-                        .setPositiveButton("Save",new DialogInterface.OnClickListener() {
+                        .setPositiveButton("Save", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 EditText savedText = ((EditText) v.findViewById(R.id.itemName));
                                 String itemText = savedText.getText().toString();
 
+                                Date boughtDate = Calendar.getInstance().getTime();
+
                                 Map<String, String> post1 = new HashMap<String, String>();
-                                post1.put("name", itemText);
-                                post1.put("date", "DATE");
+                                post1.put("name",itemText);
+                                post1.put("dateBought", dateToString(boughtDate));
 
                                 Firebase firebaseRef = new Firebase("https://burning-torch-3933.firebaseio.com/");
                                 Firebase postRef = firebaseRef.child("items");
                                 Firebase newRef = postRef.push();
                                 newRef.setValue(post1);
 
-                                groceryAdapter.addItem(itemText, newRef.getKey());
+                                groceryAdapter.addItem(itemText,newRef.getKey(),boughtDate);
                             }
-                        })
+                })
                         .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                dialog.cancel();
-                            }
-                        });
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.cancel();
+                    }
+                });
                 AlertDialog alertDialog = alertDialogBuilder.create();
                 alertDialog.show();
             }
         });
+    }
+
+    public String dateToString(Date date) {
+        DateFormat df = new SimpleDateFormat("MM/dd/yyyy hh:mm:ss aa");
+        return df.format(date);
+    }
+
+    public Date stringToDate(String date) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy hh:mm:ss aa");
+        Date convertedDate = new Date();
+        try {
+            convertedDate = dateFormat.parse(date);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return convertedDate;
     }
 
     @Override

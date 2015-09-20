@@ -29,10 +29,10 @@ public class GroceryAdapter extends BaseAdapter {
         notifyDataSetChanged();
     }
 
-    public void addItem (String name, String key) {
+    public void addItem (String name, String key, Date boughtDate) {
         GroceryItem item = new GroceryItem();
         item.setName(name);
-        item.setExpired(new Date());
+        item.setBought(boughtDate);
         item.setKey(key);
         groceryItemList.add(item);
 
@@ -83,6 +83,7 @@ public class GroceryAdapter extends BaseAdapter {
 
             ViewHolder viewHolder = new ViewHolder();
             viewHolder.groceryItemNameTextView = (TextView)currentRow.findViewById(R.id.groceryItemName);
+            viewHolder.groceryItemBoughtTextView = (TextView)currentRow.findViewById(R.id.groceryItemBought);
             viewHolder.groceryItemExpireTextView = (TextView)currentRow.findViewById(R.id.groceryItemExpire);
 
             currentRow.setTag(viewHolder);
@@ -92,7 +93,8 @@ public class GroceryAdapter extends BaseAdapter {
 
         ViewHolder viewHolder = (ViewHolder)currentRow.getTag();
         viewHolder.groceryItemNameTextView.setText(currentGroceryItem.getName());
-        viewHolder.groceryItemExpireTextView.setText(new SimpleDateFormat().format(currentGroceryItem.getExpired()));
+        viewHolder.groceryItemBoughtTextView.setText(new SimpleDateFormat().format(currentGroceryItem.getBought()));
+        viewHolder.groceryItemExpireTextView.setText(new SimpleDateFormat().format(currentGroceryItem.getExpiryDate(currentGroceryItem.getBought())));
 
         return currentRow;
     }
@@ -105,6 +107,7 @@ public class GroceryAdapter extends BaseAdapter {
 
     public static class ViewHolder {
         public TextView groceryItemNameTextView;
+        public TextView groceryItemBoughtTextView;
         public TextView groceryItemExpireTextView;
     }
 }
