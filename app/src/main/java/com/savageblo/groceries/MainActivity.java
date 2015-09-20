@@ -1,10 +1,15 @@
 package com.savageblo.groceries;
 
 import android.app.AlertDialog;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.DialogInterface;
+
+import android.os.Handler;
+import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -14,6 +19,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.firebase.client.ChildEventListener;
 import com.firebase.client.DataSnapshot;
@@ -35,6 +41,18 @@ public class MainActivity extends ActionBarActivity {
     private ListView groceryListView;
     private Button button;
     private Context context = this;
+
+    NotificationCompat.Builder urgentBuilder =
+            new NotificationCompat.Builder(this)
+                    .setSmallIcon(R.drawable.abc_ic_menu_paste_mtrl_am_alpha)
+                    .setContentTitle("YOUR FOOD EXPIRE")
+                    .setContentText("Rite Nao");
+
+    NotificationCompat.Builder moderateBuilder =
+            new NotificationCompat.Builder(this)
+                    .setSmallIcon(R.drawable.abc_ic_menu_paste_mtrl_am_alpha)
+                    .setContentTitle("YOUR FOOD EXPIRE")
+                    .setContentText("Soon");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,8 +80,10 @@ public class MainActivity extends ActionBarActivity {
                     }
                 });
                 builder.show();
+
                 return true;
             }
+
         });
 
         groceryListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -141,6 +161,29 @@ public class MainActivity extends ActionBarActivity {
             }
         });
 
+        final Handler handler = new Handler();
+
+        // Define the task to be run here
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                // Do something here on the main thread
+                Log.e("Handlers", "Called");
+                // Repeat this runnable code again every 2 seconds
+                handler.postDelayed(this, 5000);
+
+                Context context = getApplicationContext();
+                CharSequence text = "Hello toast!";
+                int duration = Toast.LENGTH_SHORT;
+
+                Toast toast = Toast.makeText(context, text, duration);
+                toast.show();
+
+            }
+        };
+        // Kick off the first runnable task right away
+        handler.post(runnable);
+
         addListenerOnButton();
     }
 
@@ -166,6 +209,15 @@ public class MainActivity extends ActionBarActivity {
                 LayoutInflater inflater = (LayoutInflater) context.getSystemService (Context.LAYOUT_INFLATER_SERVICE);
                 final View v = inflater.inflate(R.layout.add_grocery_dialog, null);
                 alertDialogBuilder.setView(v);
+
+                int mNotificationId = 001;
+// Gets an instance of the NotificationManager service
+                NotificationManager mNotifyMgr =
+                        (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+// Builds the notification and issues it.
+                mNotifyMgr.notify(mNotificationId, urgentBuilder.build());
+
+
                 alertDialogBuilder
                         .setCancelable(false)
                         .setPositiveButton("Save", new DialogInterface.OnClickListener() {
@@ -184,6 +236,13 @@ public class MainActivity extends ActionBarActivity {
                                 Firebase newRef = postRef.push();
                                 newRef.setValue(post1);
 
+                                int mNotificationId = 001;
+// Gets an instance of the NotificationManager service
+                                NotificationManager mNotifyMgr =
+                                        (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+// Builds the notification and issues it.
+                                mNotifyMgr.notify(mNotificationId, moderateBuilder.build());
+
                                 groceryAdapter.addItem(itemText,newRef.getKey(),boughtDate);
                             }
                 })
@@ -197,6 +256,8 @@ public class MainActivity extends ActionBarActivity {
             }
         });
     }
+
+
 
     public String dateToString(Date date) {
         DateFormat df = new SimpleDateFormat("MM/dd/yyyy hh:mm:ss aa");
