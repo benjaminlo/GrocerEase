@@ -58,6 +58,29 @@ public class GroceryAdapter extends BaseAdapter {
         return groceryItemList.get(position).getKey();
     }
 
+    public boolean checkExpired () {
+        boolean expired = false;
+        for(int i=0; i<groceryItemList.size(); i++){
+            if (groceryItemList.get(i).isExpired(groceryItemList.get(i).timeBeforeExpiry(groceryItemList.get(i).getExpiryDate(groceryItemList.get(i).getBought())))== true && groceryItemList.get(i).wasNotified()== false) {
+                groceryItemList.get(i).setNotified();
+                expired = true;
+                System.out.println(i);
+            }
+        }
+        return expired;
+    }
+
+    public boolean almostExpired () {
+        boolean expired = false;
+        for(int i=0; i<groceryItemList.size(); i++){
+            if (groceryItemList.get(i).timeBeforeExpiry(groceryItemList.get(i).getExpiryDate(groceryItemList.get(i).getBought()))< 100000000) {
+                expired = true;
+            }
+        }
+        return expired;
+    }
+
+
     @Override
     public int getCount() {
         return groceryItemList.size();
@@ -83,31 +106,27 @@ public class GroceryAdapter extends BaseAdapter {
 
             ViewHolder viewHolder = new ViewHolder();
             viewHolder.groceryItemNameTextView = (TextView)currentRow.findViewById(R.id.groceryItemName);
-            viewHolder.groceryItemBoughtTextView = (TextView)currentRow.findViewById(R.id.groceryItemBought);
             viewHolder.groceryItemExpireTextView = (TextView)currentRow.findViewById(R.id.groceryItemExpire);
+            viewHolder.groceryItemStatusTextView = (TextView)currentRow.findViewById(R.id.groceryItemStatus);
 
             currentRow.setTag(viewHolder);
         }
 
-        GroceryItem currentGroceryItem = groceryItemList.get(position);
+        GroceryItem current = groceryItemList.get(position);
+        Date dateBought = current.getBought();
+        Date expiry = current.getExpiryDate(dateBought);
 
         ViewHolder viewHolder = (ViewHolder)currentRow.getTag();
-        viewHolder.groceryItemNameTextView.setText(currentGroceryItem.getName());
-        viewHolder.groceryItemBoughtTextView.setText(new SimpleDateFormat().format(currentGroceryItem.getBought()));
-        viewHolder.groceryItemExpireTextView.setText(new SimpleDateFormat().format(currentGroceryItem.getExpiryDate(currentGroceryItem.getBought())));
+        viewHolder.groceryItemNameTextView.setText(current.getName());
+        viewHolder.groceryItemExpireTextView.setText(new SimpleDateFormat().format(expiry));
+        viewHolder.groceryItemStatusTextView.setText(current.expired(current.timeBeforeExpiry(expiry)));
 
         return currentRow;
     }
 
-    public void add(GroceryItem item) {
-        groceryItemList.add(item);
-
-        notifyDataSetChanged();
-    }
-
     public static class ViewHolder {
         public TextView groceryItemNameTextView;
-        public TextView groceryItemBoughtTextView;
         public TextView groceryItemExpireTextView;
+        public TextView groceryItemStatusTextView;
     }
 }

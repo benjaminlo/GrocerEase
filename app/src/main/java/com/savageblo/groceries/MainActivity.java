@@ -1,8 +1,10 @@
 package com.savageblo.groceries;
 
 import android.app.AlertDialog;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -13,6 +15,7 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.firebase.client.ChildEventListener;
@@ -35,6 +38,19 @@ public class MainActivity extends ActionBarActivity {
     private ListView groceryListView;
     private Button button;
     private Context context = this;
+
+    NotificationCompat.Builder urgentNotifBuilder =
+            new NotificationCompat.Builder(this)
+                    .setSmallIcon(R.drawable.abc_ic_ab_back_mtrl_am_alpha)
+                    .setContentTitle("URGENT")
+                    .setContentText("Your food is expired!");
+
+    NotificationCompat.Builder moderateNotifBuilder =
+            new NotificationCompat.Builder(this)
+                    .setSmallIcon(R.drawable.abc_ic_menu_moreoverflow_mtrl_alpha)
+                    .setContentTitle("Hey!")
+                    .setContentText("Your food is about to expire!");
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -106,6 +122,24 @@ public class MainActivity extends ActionBarActivity {
             public void onDataChange(DataSnapshot snapshot) {
                 groceryAdapter.clearItemList();
                 refreshData(snapshot);
+                if (false) {
+                //if (groceryAdapter.checkExpired()) {
+                    int mNotificationId = 001;
+                    // Gets an instance of the NotificationManager service
+                    NotificationManager mNotifyMgr =
+                            (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+                    // Builds the notification and issues it.
+                    mNotifyMgr.notify(mNotificationId, urgentNotifBuilder.build());
+                }
+                if (false) {
+                //if (groceryAdapter.almostExpired()) {
+                    int mNotificationId = 001;
+                    // Gets an instance of the NotificationManager service
+                    NotificationManager mNotifyMgr =
+                            (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+                    // Builds the notification and issues it.
+                    mNotifyMgr.notify(mNotificationId, moderateNotifBuilder.build());
+                }
             }
 
             @Override
@@ -154,6 +188,9 @@ public class MainActivity extends ActionBarActivity {
                 }
             }
         }
+
+        // Sets an ID for the notification
+
     }
 
     public void addListenerOnButton() {
